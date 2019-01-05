@@ -6,8 +6,6 @@ const typeDefinitions = `
     id : ID
     username: String!
     password: String!
-    token: String
-    email:String
   }
 
 

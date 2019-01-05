@@ -5,7 +5,8 @@ const Ticket = new Schema({
   '_id'        : {type: Schema.Types.ObjectId, auto: true },
   "access_token": { type: String, index: {unique: true, dropDups: true} },
   "refresh_token": { type: String, index: {unique: true, dropDups: true} },
-  "expires_in ": { type:Number},
+  "expire_in ": { type:Number},
+  "usuario_id": { type: String, index: true},
   "created": { type: Date, default: Date.now, index: true },
   "updated": { type: Date, default: Date.now, index: true }
 });
@@ -38,7 +39,7 @@ const dates = dates_as_int.map(date => new Date(date).getTime())
 
 */
 
-User.pre('save', function(next){
+Ticket.pre('save', function(next){
   this.updated = Date.now();
   next();
 });

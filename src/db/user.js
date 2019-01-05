@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 //https://github.com/ex90rts/koa-mongoose/blob/master/controllers/user.js
 const User = new Schema({
-  '_id'        : {type: Schema.Types.ObjectId, auto: true },
+  //'_id'        : {type: Schema.Types.ObjectId, auto: true },
+  '_id'        : {type: String },
   "username": { type: String, index: {unique: true, dropDups: true} },
   "password": { type: String, match: /\w+/, index: true },
-  "email": {type: String, default: null},
-  "token": {type: String, default: null},
+  //"email": {type: String, default: null},
   "created": { type: Date, default: Date.now, index: true },
   "updated": { type: Date, default: Date.now, index: true },
 });
