@@ -5,7 +5,6 @@ const Ticket = new Schema({
   '_id'        : {type: Schema.Types.ObjectId, auto: true },
   "access_token": { type: String, index: {unique: true, dropDups: true} },
   "refresh_token": { type: String, index: {unique: true, dropDups: true} },
-  "expire_in ": { type:Number},
   "usuario_id": { type: String, index: true},
   "created": { type: Date, default: Date.now, index: true },
   "updated": { type: Date, default: Date.now, index: true }

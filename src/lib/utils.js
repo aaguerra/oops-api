@@ -12,7 +12,7 @@ function generateJWTforRefresh (user = {}) {
 
 function generateJWTfoAccess (user = {}) {
   return jwt.sign({//Math.floor(Date.now() / 1000) + (60 * 60) una hora
-      exp: Math.floor(Date.now() / 1000) + (5) ,//5 segundos
+      exp: Math.floor(Date.now() / 1000) + (60*60) ,//5 segundos
       data:  _.pick(user, ['id', 'username'])
     }, _.defaultTo(process.env.JWT_SECRET, 'secret1'), jwtOptions)
 }

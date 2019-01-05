@@ -1,5 +1,8 @@
 const TicketModel = require('../../db/ticket');
+const jwt = require('jsonwebtoken')
 const UserModel = require('../../db/user');
+const {jwtSecret} = require('config')
+const func = require('lodash')
 const { generateJWTfoAccess,generateJWTforRefresh,generateJWTforUser } = require('../../lib/utils')
 
 const typeDefinitions = `
@@ -21,7 +24,7 @@ const typeDefinitions = `
 `
 
 const queries = `
-refreshToken (token: String): Ticket
+  refreshToken (token: String): Ticket
 `
 
 const mutations = `
@@ -30,16 +33,40 @@ const mutations = `
 
 const resolvers = {
   Query: {
-    refreshToken: async (_, args) => {
-      await TicketModel.findById(args.id)
+    refreshToken: async (_, args) => {      
+      try {
+        var decoded = jwt.verify(args.token, func.defaultTo(process.env.JWT_SECRET, 'secret1'));
+        let token = await TicketModel.findOne({ refresh_token: args.token }, function (err, adventure) {});
+        if(!token){
+          return {
+            id: "",
+            access_token: "",
+            refresh_token: "",
+            expires_in: 0,
+            info: "Token no existe",
+            status: -1
+          }
+        }          
+        token.access_token= generateJWTfoAccess(decoded.data)
+        token.refresh_token= generateJWTforRefresh(decoded.data)
+        return token
+      } catch(err) {
+        console.log(err)
+        return {
+          id: "",
+          access_token: "",
+          refresh_token: "",
+          expires_in: 0,
+          info: "Token invalido",
+          status: -1
+        }
+      }
     }
   },
   Mutation: {
     loguinUser: async (_, args) => {
       var response = null
-      console.log(args.user.username )
       var user = await UserModel.findOne({ _id: args.user.username }, function (err, adventure) {});
-      console.log(user)
       if (!user) {
         response = {
           id: "",
@@ -50,11 +77,20 @@ const resolvers = {
           status: -1
         }
       } else if(user.password === args.user.password) {
-        console.log(generateJWTforUser(user))
-        response = {
-          id: user._id,
+        let ticket =  new TicketModel({
+          usuario_id: user._id,
           access_token: generateJWTfoAccess(user),
           refresh_token: generateJWTforRefresh(user),
+        })
+        try {
+          await ticket.save();   
+        } catch (e) {
+          console.log(e);
+        }
+        response = {
+          id: user._id,
+          access_token: ticket.access_token,
+          refresh_token: ticket.refresh_token,
           expires_in: Math.floor(Date.now() / 1000) + (5),
           info: "",
           status: 1
@@ -69,7 +105,6 @@ const resolvers = {
           status: -1
         }
       }
-      
       return response
     },
   },
